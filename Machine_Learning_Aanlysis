@@ -1,0 +1,245 @@
+import pandas as pd
+df = pd.read_excel('DTI_Project_new.xlsx')
+print(df.head())
+
+print(df.isnull().sum())
+Here, We get know that our data has null values in column "State"
+import numpy as np
+
+df_cleaned = df.dropna(subset=['STATE'])
+
+print(df)
+Now, we are heading toward data visualization.
+import pandas as pd
+import matplotlib.pyplot as plt
+
+data = pd.read_excel('DTI_Project_new.xlsx')
+
+data['TIMESTAMP'] = pd.to_datetime(data['TIMESTAMP'])
+
+plt.figure(figsize=(12, 6))
+data['LABEL'].value_counts().plot(kind='bar', color='skyblue')
+plt.title('Frequency of Each LABEL')
+plt.xlabel('LABEL')
+plt.ylabel('Frequency')
+plt.grid(True)
+plt.show()
+
+import plotly.express as px
+top_countries = df['COUNTRY'].value_counts().head(10)
+
+fig = px.treemap(names=top_countries.index, parents=["" for _ in top_countries.index], values=top_countries.values)
+
+fig.update_layout(
+
+    title='Top Countries with Highest Number of Attackers',
+)
+fig.show()
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(100, 60))
+sns.countplot(x='USERNAME', data=df)
+plt.title('Counts by username')
+plt.xlabel('username')
+plt.ylabel('Count')
+plt.xticks(rotation=40)
+plt.show()
+
+import geopandas as gpd
+from shapely.geometry import Point
+
+geometry = [Point(xy) for xy in zip(df['LONGITUDE'], df['LATITUDE'])]
+geo_df = gpd.GeoDataFrame(df, geometry=geometry, crs='EPSG:4326')
+
+world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
+fig, ax = plt.subplots(figsize=(10, 6))
+world.plot(ax=ax, color='lightgray')
+geo_df.plot(ax=ax, markersize=5, color='blue', alpha=0.5)
+plt.title('Geospatial Plot of Data')
+plt.xlabel('Longitude')
+plt.ylabel('Latitude')
+plt.show()
+
+country_counts = df['COUNTRY'].value_counts()
+
+data = pd.DataFrame({'Country': country_counts.index, 'Count': country_counts.values})
+
+fig = px.choropleth(data_frame=data, locations='Country', locationmode='country names',
+                    color='Count', title='Number of Attacks Released By Country',
+                    color_continuous_scale='Reds', range_color=(0, data['Count'].max()),
+                    labels={'Count': 'Number of Attackers'})
+
+fig.update_layout(
+
+)
+fig.show()
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+data = pd.read_excel('DTI_Project_new.xlsx')
+
+data['TIMESTAMP'] = pd.to_datetime(data['TIMESTAMP'])
+
+data['YEAR'] = data['TIMESTAMP'].dt.year
+
+timestamps_per_country_year = data.groupby(['COUNTRY', 'YEAR']).size().unstack(fill_value=0)
+
+plt.figure(figsize=(12, 8))
+for country in timestamps_per_country_year.index:
+    plt.plot(timestamps_per_country_year.columns, timestamps_per_country_year.loc[country], label=country)
+
+plt.title('Count of Timestamps per Country Over Time')
+plt.xlabel('Year')
+plt.ylabel('Count')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+country_state_counts = df.groupby('COUNTRY')['STATE'].nunique().reset_index()
+
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(12, 6))
+plt.bar(country_state_counts['COUNTRY'], country_state_counts['STATE'])
+plt.xlabel('Country')
+plt.ylabel('Number of States')
+plt.title('Number of States per Country')
+plt.xticks(rotation=45, ha='right')
+plt.tight_layout()
+plt.show()
+
+Here, we get an insight that India, Russia, US have frequency of more than one state.
+
+
+Now trying to count the occurance of a user
+country_username_counts = df.groupby(['COUNTRY', 'USERNAME']).size().reset_index(name='COUNT')
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(12, 6))
+country_username_counts.pivot(index='COUNTRY', columns='USERNAME', values='COUNT').plot(kind='bar', stacked=True)
+plt.xlabel('Country')
+plt.ylabel('Count of Usernames')
+plt.title('Count of Usernames per Country')
+plt.xticks(rotation=45, ha='right')
+plt.legend(title='Username', bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.tight_layout()
+plt.show()
+
+import pandas as pd
+
+data = pd.read_excel('DTI_Project_new.xlsx')
+
+username_counts = data['USERNAME'].value_counts()
+
+print("Username Counts:")
+print(username_counts)
+
+**Here we get the count of each username**
+
+import pandas as pd
+
+data = pd.read_excel('DTI_Project_new.xlsx')
+
+username_counts = data['USERNAME'].value_counts()
+
+print("Username Counts:")
+print(username_counts)
+
+min_count = username_counts.min()
+max_count = username_counts.max()
+mean_count = username_counts.mean()
+
+print("\nMinimum Count:", min_count)
+print("Maximum Count:", max_count)
+print("Mean Count:", mean_count)
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+data = pd.read_excel('DTI_Project_new.xlsx')
+
+username_counts = data.groupby(['USERNAME', 'COUNTRY']).size().unstack(fill_value=0)
+
+username_counts_filtered = username_counts[username_counts.sum(axis=1) >= 50]
+
+username_counts_filtered.plot(kind='bar', stacked=True, figsize=(10, 6))
+plt.title('Count of Usernames by Country (with at least 50 counts)')
+plt.xlabel('Username')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.legend(title='Country')
+plt.show()
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+data = pd.read_excel('DTI_Project_new.xlsx')
+
+username_counts = data.groupby(['USERNAME', 'COUNTRY']).size().unstack(fill_value=0)
+
+username_counts_filtered = username_counts[username_counts.sum(axis=1) >= 10]
+
+username_counts_filtered.plot(kind='bar', stacked=True, figsize=(10, 6))
+plt.title('Count of Usernames by Country (with at least 50 counts)')
+plt.xlabel('Username')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.legend(title='Country')
+plt.show()
+
+**ANALOMY DETECTION**
+import pandas as pd
+
+data = pd.read_excel('DTI_Project_new.xlsx')
+data['TIMESTAMP'] = pd.to_datetime(data['TIMESTAMP'])
+
+time_window = pd.Timedelta(minutes=5)
+
+user_counts = data.groupby('USERNAME').apply(lambda group: group.set_index('TIMESTAMP').resample(time_window).size())
+
+anomalies = user_counts[user_counts > 5]
+
+anomalies_df = anomalies.reset_index()
+anomalies_df.columns = ['USERNAME', 'TIMESTAMP', 'OCCURRENCES']
+
+print("Anomalies (Occurrences > 5 within a 5-minute window):")
+print(anomalies_df)
+
+plt.figure(figsize=(10, 6))
+plt.bar(anomalies_df['USERNAME'], anomalies_df['OCCURRENCES'], color='skyblue')
+plt.xlabel('Usernames')
+plt.ylabel('Number of Occurrences')
+plt.title('Anomalies (Occurrences > 5 within a 5-minute window)')
+plt.xticks(rotation=45, ha='right')
+plt.tight_layout()
+plt.show()
+
+
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
+titles = df['COUNTRY'].values
+
+text = ' '.join(titles)
+
+wordcloud = WordCloud(background_color='white', colormap='Blues').generate(text)
+
+plt.figure(figsize=(10, 6))
+plt.imshow(wordcloud, interpolation='bilinear')
+plt.axis('off')
+plt.title('Most Common usernames ', color='white')
+plt.show()
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
+titles = df['USERNAME'].values
+
+text = ' '.join(titles)
+
+wordcloud = WordCloud(background_color='white', colormap='Blues').generate(text)
+
+plt.figure(figsize=(10, 6))
+plt.imshow(wordcloud, interpolation='bilinear')
+plt.axis('off')
+plt.title('Most Common usernames ', color='white')
+plt.show()
